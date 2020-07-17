@@ -17,7 +17,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.util.concurrent.ListenableFuture;
 
-import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 
@@ -69,9 +68,5 @@ public class Producer {
             e.printStackTrace();
         }
         return null;
-    }
-
-    public static byte[] serialize(final Object obj) {
-        return org.apache.commons.lang3.SerializationUtils.serialize((Serializable) obj);
     }
 }
