@@ -9,7 +9,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.kafka.support.SendResult;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.util.concurrent.ListenableFuture;
@@ -22,7 +25,7 @@ import java.util.List;
 @Component
 public class Producer {
     @Autowired
-    private KafkaTemplate<byte[], byte[]> kafkaTemplate;
+    private KafkaTemplate<String, Event> kafkaTemplate;
 
     @Autowired
     private ExternalApiInvoker externalApiInvoker;
@@ -30,15 +33,22 @@ public class Producer {
     @Value("${kafka.topic}")
     private String topic;
 
+    @Value("${application.github.url}")
+    private String githubUrl;
+
     @Scheduled(fixedRate = 60000)
-    public void sendMessage(){
-        String bodyForEvents = externalApiInvoker.callExternalApi("https://api.github.com/users/abhishyam21/events");
+    public void sendMessage() {
+        String bodyForEvents = externalApiInvoker.callExternalApi(githubUrl);
         List<Event> events = convertStringToObject(bodyForEvents);
         assert events != null;
         events.forEach(event -> {
             log.info("Pushing event with id {} to kafka broker", event.getId());
-            ListenableFuture<SendResult<byte[], byte[]>> future = kafkaTemplate.send(topic, serialize(event.getId()), serialize(event));
-            if(future.isDone()){
+            Message<Event> message = MessageBuilder
+                    .withPayload(event)
+                    .setHeader(KafkaHeaders.TOPIC, topic)
+                    .build();
+            ListenableFuture<SendResult<String, Event>> future = kafkaTemplate.send(message);
+            if (future.isDone()) {
                 log.info("Successfully published event {}", event.getId());
             }
             try {
