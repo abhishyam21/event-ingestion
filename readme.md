@@ -9,7 +9,7 @@ This Project will fetch the recent events from Github and pushed them to kafka t
 - `bin/kafka-server-start.sh config/server.properties`
 
 ## Create Kafka Topic
-- `bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic eventmetrics
+- `bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic eventmetrics`
 
 After all the above steps, start the application. 
 There is a scheduler job running for every 5min to 
