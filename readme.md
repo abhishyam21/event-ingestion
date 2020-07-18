@@ -17,3 +17,6 @@ fetch data from Github.
 If you want to change the frequency of the scheduler, 
 navigate to **Producer** class and try changing fixedRated value.
  `@Scheduled(fixedRate = 60000)`
+ 
+ ## Run the Application
+ `mvn spring-boot:run`
